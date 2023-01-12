@@ -111,7 +111,7 @@
 
         var gen_conf = "";
         var from = "weibo";
-        var incarnate_intr = window.location.protocol + "//" + window.location.host + "/visitor/visitor?a=incarnate&t=" +
+        var incarnate_intr = "https://" + window.location.host + "/visitor/visitor?a=incarnate&t=" +
                 encodeURIComponent(tid) + "&w=" + encodeURIComponent(where) + "&c=" + encodeURIComponent(conficence) +
                 "&gc=" + encodeURIComponent(gen_conf) + "&cb=cross_domain&from=" + from + "&_rand=" + Math.random();
         url.l(incarnate_intr);
@@ -121,7 +121,7 @@
     var restore = function () {
 
         var from = "weibo";
-        var restore_intr = window.location.protocol + "//" + window.location.host +
+        var restore_intr = "https://" + window.location.host +
                 "/visitor/visitor?a=restore&cb=restore_back&from=" + from + "&_rand=" + Math.random();
 
         url.l(restore_intr);
