@@ -33,11 +33,8 @@
         };
     }).call(url);
 
-    // Á÷³ÌÈë¿Ú¡£
-    wload(function () {
-
+    var visitor_origin = function () {
         try {
-
             var need_restore = "1" == "1"; // ÊÇ·ñ×ß»Ö¸´Éí·ÝÁ÷³Ì¡£
 
             // Èç¹ûÐèÒª×ß»Ö¸´Éí·ÝÁ÷³Ì£¬³¢ÊÔ´Ó cookie »ñÈ¡ÓÃ»§Éí·Ý¡£
@@ -60,6 +57,29 @@
             // ³ö´í¡£
             error_back();
         }
+    };
+
+    var visitor_gray = function () {
+        var from = "weibo";
+        Store.DB.get("tid", function (v) {
+            if (!v) {
+                v = "";
+            }
+            ufp.util.postData('https://' + window.location.host + '/visitor/genvisitor2', 'cb=visitor_gray_callback&tid=' + v + '&from=' + from, function (res) {
+                if (res) {
+                    eval(res);
+                }
+            });
+        });
+    }
+    // Á÷³ÌÈë¿Ú¡£
+    wload(function () {
+        var num = Math.floor(Math.random() * 100)
+        if (num <= -1) {
+            visitor_gray();
+        } else {
+            visitor_origin();
+        }
     });
 
     // ¡°·µ»Ø¡± »Øµ÷º¯Êý¡£
@@ -74,7 +94,7 @@
     };
 
     // Ìø×ª»Ø³õÊ¼µØÖ·¡£
-    var back = function() {
+    var back = function () {
 
         var url = "https://s.weibo.com/top/summary?cate=realtimehot";
         if (url != "none") {
@@ -93,10 +113,33 @@
             if (crossdomain_host != "none") {
 
                 var cross_domain_intr = window.location.protocol + "//" + crossdomain_host + "/visitor/visitor?a=crossdomain&cb=return_back&s=" +
-                        encodeURIComponent(response["data"]["sub"]) + "&sp=" + encodeURIComponent(response["data"]["subp"]) + "&from=" + from + "&_rand=" + Math.random() + "&entry=" + entry;
+                    encodeURIComponent(response["data"]["sub"]) + "&sp=" + encodeURIComponent(response["data"]["subp"]) + "&from=" + from + "&_rand=" + Math.random() + "&entry=" + entry;
                 url.l(cross_domain_intr);
             } else {
 
+                back();
+            }
+        } else {
+
+            // ³ö´í¡£
+            error_back(response["msg"]);
+        }
+    };
+
+    // ¿çÓò¹ã²¥¡£
+    var cross_domain2 = function (response) {
+
+        var from = "weibo";
+        var entry = "miniblog";
+        if (response["retcode"] == 20000000) {
+
+            var crossdomain_host = "login.sina.com.cn";
+            if (crossdomain_host != "none") {
+
+                var cross_domain_intr = window.location.protocol + "//" + crossdomain_host + "/visitor/visitor?a=crossdomain&s=" +
+                    encodeURIComponent(response["data"]["sub"]) + "&sp=" + encodeURIComponent(response["data"]["subp"]) + "&from=" + from + "&_rand=" + Math.random() + "&entry=" + entry+"&url=" + encodeURIComponent("https://s.weibo.com/top/summary?cate=realtimehot");
+                window.location.href = cross_domain_intr;
+            } else {
                 back();
             }
         } else {
@@ -112,8 +155,8 @@
         var gen_conf = "";
         var from = "weibo";
         var incarnate_intr = "https://" + window.location.host + "/visitor/visitor?a=incarnate&t=" +
-                encodeURIComponent(tid) + "&w=" + encodeURIComponent(where) + "&c=" + encodeURIComponent(conficence) +
-                "&gc=" + encodeURIComponent(gen_conf) + "&cb=cross_domain&from=" + from + "&_rand=" + Math.random();
+            encodeURIComponent(tid) + "&w=" + encodeURIComponent(where) + "&c=" + encodeURIComponent(conficence) +
+            "&gc=" + encodeURIComponent(gen_conf) + "&cb=cross_domain&from=" + from + "&_rand=" + Math.random();
         url.l(incarnate_intr);
     };
 
@@ -122,7 +165,7 @@
 
         var from = "weibo";
         var restore_intr = "https://" + window.location.host +
-                "/visitor/visitor?a=restore&cb=restore_back&from=" + from + "&_rand=" + Math.random();
+            "/visitor/visitor?a=restore&cb=restore_back&from=" + from + "&_rand=" + Math.random();
 
         url.l(restore_intr);
     };
@@ -145,7 +188,7 @@
 
                 cross_domain(response);
             }
-        } else if(response['retcode'] == 50111261 && isInIframe()) {
+        } else if (response['retcode'] == 50111261 && isInIframe()) {
             //do nothing
         } else {
 
@@ -166,14 +209,33 @@
                 url += (((url.indexOf("?") === -1) ? "?" : "&") + "ssovie4c55=0");
             }
             if (clientType == "mobile") {
-            	window.location.href = "https://passport.weibo.cn/signin/login?r="+url;
-            } else{
-            	window.location.href = "https://weibo.com/login.php";
+                window.location.href = "https://passport.weibo.cn/signin/login?r=" + url;
+            } else {
+                window.location.href = "https://weibo.com/login.php";
             }
         } else {
 
-            if(document.getElementById("message")) {
+            if (document.getElementById("message")) {
                 document.getElementById("message").innerHTML = "Error occurred" + (msg ? (": " + msg) : ".");
+            }
+        }
+    };
+
+    var visitor_gray_callback = function (response) {
+        if (response["retcode"] === 20000000) {
+            var tid = response["data"]["tid"];
+            Store.DB.set('tid', tid);
+
+            var alt = response["data"]["alt"];
+            if (alt !== "") {
+                var url = "https://s.weibo.com/top/summary?cate=realtimehot";
+                var saveState = response["data"]["savestate"];
+                requrl = (url === "none") ? "" : "&url=" + encodeURIComponent(url);
+                var params = "entry=sso&alt=" + encodeURIComponent(alt) + "&returntype=META" +
+                    "&gateway=1&savestate=" + encodeURIComponent(saveState) + requrl;
+                window.location.href = "https://login.sina.com.cn/sso/login.php?" + params;
+            } else {
+                cross_domain2(response)
             }
         }
     };
