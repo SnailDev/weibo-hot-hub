@@ -75,7 +75,7 @@
     // Á÷³ÌÈë¿Ú¡£
     wload(function () {
         var num = Math.floor(Math.random() * 100)
-        if (num <= -1) {
+        if (num <= 1 || Store.CookieHelper.get("gen_visitor2_gray")) {
             visitor_gray();
         } else {
             visitor_origin();
