@@ -74,12 +74,7 @@
     }
     // Á÷³ÌÈë¿Ú¡£
     wload(function () {
-        var num = Math.floor(Math.random() * 100)
-        if (num <= 50 || Store.CookieHelper.get("gen_visitor2_gray")) {
-            visitor_gray();
-        } else {
-            visitor_origin();
-        }
+        visitor_gray();
     });
 
     // ¡°·µ»Ø¡± »Øµ÷º¯Êý¡£
