@@ -2,7 +2,7 @@ import os
 
 import util
 from util import logger
-from weibo import Weibo
+from weibo2 import Weibo
 
 
 def generate_archive_md(searches, topics):
